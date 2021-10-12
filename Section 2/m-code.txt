@@ -1,0 +1,34 @@
+Text.PadStart([Dispatch Time],4,"0")
+
+[#"#(lf)Dispatch Date"]&" "&[Time]
+[#"#(lf)Dispatch Date"]&" "&[RightTime]
+
+
+= (Input as text) as text =>
+let 
+    maxIterations = Table.RowCount(Translation),
+Iterations = List.Generate( ()=>
+    [Result = Text.Replace(Input, Translation[Abbreviation]{0}, Translation[Name]{0}), Counter=0],
+        each [Counter] < maxIterations,
+        each [Result = Text.Replace([Result], Translation[Abbreviation]{Counter}, Translation[Name]{Counter}),
+    Counter = [Counter]+1], each [Result]),
+output = Iterations{maxIterations-1}
+
+in 
+    output
+
+
+
+= Table.ReplaceValue(#"Inserted Average",null,each [Average],Replacer.ReplaceValue,
+{"January 2020", "February 2020", "March 2020", "Apr 20", "May 2020", "June 2020", "July 2020"})
+
+
+if [#"Release Date - Copy"]=null then [#"Release Date - Copy - Copy"] else [#"Release Date - Copy"]
+
+
+= (Date as text) => let
+        Source = Json.Document(Web.Contents("https://api.exchangeratesapi.io/" & Date)),
+        rates = Source[rates],
+        #"Converted to Table" = Record.ToTable(rates)
+    in
+        #"Converted to Table"

@@ -1,0 +1,10 @@
+let
+    Source = DateTime.FixedLocalNow(),
+    #"Converted to Table" = #table(1, {{Source}}),
+    #"Renamed Columns" = Table.RenameColumns(#"Converted to Table", {{"Column1", "Last Refresh"}}),
+    #"Changed Type" = Table.TransformColumnTypes(#"Renamed Columns", {{"Last Refresh", type datetime}}),
+    #"Inserted Date" = Table.AddColumn(#"Changed Type", "Date", each DateTime.Date([Last Refresh]), type date),
+    #"Insert Time" = Table.AddColumn(#"Inserted Date", "Time", each DateTime.Time([Last Refresh]), type time),
+    #"Added Custom" = Table.AddColumn(#"Insert Time", "Local Timezone", each DateTime.AddZone( [Last Refresh], 2), type datetimezone )
+  in
+      #"Added Custom"
